@@ -1,6 +1,3 @@
-
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,7 +12,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: #000;
+      background: #000;  
       font-family: 'Inter', sans-serif;
       display: flex;
       justify-content: center;
@@ -91,7 +88,7 @@
       position: absolute;
       background: transparent;
       border: none;
-      font-size: 16px;
+      font-size: 14px; /* Todos los campos en 14px */
       color: #2E1A47;
       font-weight: 400;
       text-align: left;
@@ -99,6 +96,7 @@
       outline: none;
       pointer-events: none;
       white-space: nowrap; /* Asegura que siempre sea una sola línea */
+      overflow: visible; /* Permite que el texto sobresalga si es necesario */
     }
     /* Posiciones relativas sobre imagen de 390px de ancho */
     #nombre { 
@@ -115,8 +113,6 @@
       top: calc((515px) * var(--escala)); 
       left: calc((40px) * var(--escala)); 
       width: calc(280px * var(--escala)); 
-      white-space: nowrap; /* Asegura que siempre sea una sola línea */
-      overflow: visible; /* Permite que el texto sobresalga si es necesario */
     }
     #nequi { 
       top: calc((610px) * var(--escala)); 
@@ -155,6 +151,21 @@
       font-weight: bold;
       z-index: 9999;
     }
+    /* Indicador de carga */
+    #cargando {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      display: none;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
@@ -189,14 +200,17 @@
   <div id="disponible" class="input-overlay">Disponible</div>
 </div>
 <button id="verPantallaCompleta">Ver en Pantalla Completa</button>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js "></script>
+<div id="cargando">Cargando...</div>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>  
 <script>
 let claveAcceso = "2025142205";
 const claveAdmin = "1395";
+
 // Eventos principales
 document.getElementById('whatsapp').addEventListener('click', () => {
-  window.open('https://wa.me/573178793834?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20la%20clave%20de%20NequiBotGV. ', '_blank');
+  window.open('https://wa.me/573178793834?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20la%20clave%20de%20NequiBotGV.', '_blank');
 });
+
 document.getElementById('clave-ingreso').addEventListener('click', () => {
   const clave = prompt("Ingrese la clave de acceso:");
   if (clave === claveAdmin) {
@@ -208,6 +222,7 @@ document.getElementById('clave-ingreso').addEventListener('click', () => {
     alert("Clave incorrecta. Acceso denegado.");
   }
 });
+
 document.getElementById('cambiar-clave-boton').addEventListener('click', () => {
   const clave = prompt("Ingrese la clave de administrador:");
   if (clave === claveAdmin) {
@@ -217,12 +232,14 @@ document.getElementById('cambiar-clave-boton').addEventListener('click', () => {
     alert("Clave de administrador incorrecta.");
   }
 });
+
 function mostrarFormulario() {
   document.getElementById('contenido-oculto').style.display = 'block';
   document.getElementById('whatsapp').style.display = 'none';
   document.getElementById('clave-ingreso').style.display = 'none';
   document.getElementById('cambiar-clave-boton').style.display = 'none';
 }
+
 document.getElementById('guardar-nueva-clave').addEventListener('click', () => {
   const nueva = document.getElementById('nueva-clave').value.trim();
   if (nueva) {
@@ -231,32 +248,50 @@ document.getElementById('guardar-nueva-clave').addEventListener('click', () => {
     document.getElementById('nueva-clave').value = "";
   }
 });
+
 document.getElementById('generar').addEventListener('click', () => {
   if (!validarEntradas()) return;
-  const container = document.getElementById('captura');
-  const img = document.querySelector('#captura img');
-  // Ajustar escala según el tamaño de la pantalla
-  const escala = Math.min(window.innerWidth / 390, 1);
-  container.style.setProperty('--escala', escala);
-  document.getElementById('pantalla').style.display = 'none';
-  container.style.display = 'block';
-  // Asignar valores a los campos superpuestos
-  document.getElementById('nombre').value = document.getElementById('input-nombre').value;
-  document.getElementById('valor').value = formatValor(document.getElementById('input-valor').value);
-  generarFecha();
-  document.getElementById('nequi').value = document.getElementById('input-nequi').value;
-  generarReferencia();
-  const formato = document.getElementById('formato').value;
-  // Verificar si la imagen de fondo está completamente cargada
-  if (!img.complete || !img.naturalWidth) {
-    alert("La imagen de fondo no se ha cargado completamente. Inténtalo nuevamente.");
-    return;
-  }
-  // Mostrar el botón de pantalla completa
-  document.getElementById('verPantallaCompleta').style.display = 'block';
-  // Descargar automáticamente el comprobante
-  descargarComprobante(formato);
+
+  // Mostrar indicador de carga
+  const cargando = document.getElementById('cargando');
+  cargando.style.display = 'block';
+
+  setTimeout(() => {
+    const container = document.getElementById('captura');
+    const img = document.querySelector('#captura img');  
+
+    // Ocultar indicador de carga
+    cargando.style.display = 'none';
+
+    // Ajustar escala según el tamaño de la pantalla
+    const escala = Math.min(window.innerWidth / 390, 1);
+    container.style.setProperty('--escala', escala);
+    document.getElementById('pantalla').style.display = 'none';
+    container.style.display = 'block';
+
+    // Asignar valores a los campos superpuestos
+    document.getElementById('nombre').value = document.getElementById('input-nombre').value;
+    document.getElementById('valor').value = formatValor(document.getElementById('input-valor').value);
+    generarFecha();
+    document.getElementById('nequi').value = document.getElementById('input-nequi').value;
+    generarReferencia();
+
+    const formato = document.getElementById('formato').value;
+
+    // Verificar si la imagen de fondo está completamente cargada
+    if (!img.complete || !img.naturalWidth) {
+      alert("La imagen de fondo no se ha cargado completamente. Inténtalo nuevamente.");
+      return;
+    }
+
+    // Mostrar el botón de pantalla completa
+    document.getElementById('verPantallaCompleta').style.display = 'block';
+
+    // Descargar automáticamente el comprobante
+    descargarComprobante(formato);
+  }, 5000); // Retraso de 5 segundos
 });
+
 document.getElementById('verPantallaCompleta').addEventListener('click', () => {
   const contenedor = document.getElementById('captura');
   const btn = document.getElementById('verPantallaCompleta');
@@ -283,6 +318,7 @@ document.getElementById('verPantallaCompleta').addEventListener('click', () => {
     btn.textContent = "Ver en Pantalla Completa";
   }
 });
+
 document.addEventListener('fullscreenchange', () => {
   const contenedor = document.getElementById('captura');
   const btn = document.getElementById('verPantallaCompleta');
@@ -291,6 +327,7 @@ document.addEventListener('fullscreenchange', () => {
     btn.textContent = "Ver en Pantalla Completa";
   }
 });
+
 // Validaciones y utilidades
 function validarEntradas() {
   const nombre = document.getElementById('input-nombre').value.trim();
@@ -310,6 +347,7 @@ function validarEntradas() {
   }
   return true;
 }
+
 function generarFecha() {
   const fecha = new Date();
   const opts = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -319,14 +357,17 @@ function generarFecha() {
   h = h % 12 || 12;
   document.getElementById('fecha').innerHTML = `${f} a las ${h}:${m} ${ampm}`;
 }
+
 function generarReferencia() {
   document.getElementById('referencia').value = 'M' + Math.floor(1e7 + Math.random() * 9e7);
 }
+
 function formatValor(valor) {
   valor = valor.replace(/\D/g, '');
   if (!valor) return "$ 0,00";
   return `$ ${valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},00`;
 }
+
 function descargarComprobante(formato) {
   const img = document.querySelector('#captura img');
   if (!img.complete || !img.naturalWidth) {
@@ -359,4 +400,3 @@ function descargarComprobante(formato) {
 </script>
 </body>
 </html>
-```
